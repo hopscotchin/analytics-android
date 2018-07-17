@@ -1,6 +1,5 @@
 package com.segment.analytics;
 
-
 import static org.junit.Assert.fail;
 
 import android.support.test.rule.ActivityTestRule;
@@ -33,7 +32,8 @@ import retrofit2.converter.moshi.MoshiConverterFactory;
  * connected to the source connected to the source (configured manually via the app) is able to
  * receive the data sent by this library.
  *
- * See https://paper.dropbox.com/doc/Libraries-End-to-End-Tests-ESEakc3LxFrqcHz69AmyN for details.
+ * <p>See https://paper.dropbox.com/doc/Libraries-End-to-End-Tests-ESEakc3LxFrqcHz69AmyN for
+ * details.
  */
 @RunWith(AndroidJUnit4.class)
 public class E2ETest {
@@ -58,35 +58,38 @@ public class E2ETest {
   // Token to read data from the Runscope bucket.
   private static final String RUNSCOPE_TOKEN = BuildConfig.RUNSCOPE_TOKEN;
 
-  private static final Backo BACKO = Backo.builder()
-      .base(TimeUnit.SECONDS, 1)
-      .cap(TimeUnit.SECONDS, 5)
-      .build();
+  private static final Backo BACKO =
+      Backo.builder().base(TimeUnit.SECONDS, 1).cap(TimeUnit.SECONDS, 5).build();
 
   private Analytics analytics;
   private RunscopeService runscopeService;
 
   @Before
   public void setup() {
-    analytics = new Analytics.Builder(activityActivityTestRule.getActivity(), SEGMENT_WRITE_KEY)
-        .build();
+    analytics =
+        new Analytics.Builder(activityActivityTestRule.getActivity(), SEGMENT_WRITE_KEY).build();
 
-    runscopeService = new Retrofit.Builder()
-        .baseUrl("https://api.runscope.com")
-        .addConverterFactory(MoshiConverterFactory.create())
-        .client(new OkHttpClient.Builder()
-            .addNetworkInterceptor(new Interceptor() {
-              @Override
-              public okhttp3.Response intercept(Chain chain) throws IOException {
-                return chain.proceed(chain.request()
-                    .newBuilder()
-                    .addHeader("Authorization", "Bearer " + RUNSCOPE_TOKEN)
-                    .build());
-              }
-            })
-            .build())
-        .build()
-        .create(RunscopeService.class);
+    runscopeService =
+        new Retrofit.Builder()
+            .baseUrl("https://api.runscope.com")
+            .addConverterFactory(MoshiConverterFactory.create())
+            .client(
+                new OkHttpClient.Builder()
+                    .addNetworkInterceptor(
+                        new Interceptor() {
+                          @Override
+                          public okhttp3.Response intercept(Chain chain) throws IOException {
+                            return chain.proceed(
+                                chain
+                                    .request()
+                                    .newBuilder()
+                                    .addHeader("Authorization", "Bearer " + RUNSCOPE_TOKEN)
+                                    .build());
+                          }
+                        })
+                    .build())
+            .build()
+            .create(RunscopeService.class);
   }
 
   @After
@@ -145,19 +148,15 @@ public class E2ETest {
     fail("did not find message with id: " + id);
   }
 
-  /**
-   * Returns {@code true} if a message with the provided ID is found in Runscope.
-   */
+  /** Returns {@code true} if a message with the provided ID is found in Runscope. */
   @SuppressWarnings("ConstantConditions")
   private boolean hasMatchingRequest(String id) throws IOException {
-    Response<MessagesResponse> messagesResponse = runscopeService
-        .messages(RUNSCOPE_BUCKET)
-        .execute();
+    Response<MessagesResponse> messagesResponse =
+        runscopeService.messages(RUNSCOPE_BUCKET).execute();
 
     for (MessagesResponse.Message message : messagesResponse.body().data) {
-      Response<MessageResponse> messageResponse = runscopeService
-          .message(RUNSCOPE_BUCKET, message.uuid)
-          .execute();
+      Response<MessageResponse> messageResponse =
+          runscopeService.message(RUNSCOPE_BUCKET, message.uuid).execute();
 
       // TODO: Deserialize into Segment message and check against properties.
       if (messageResponse.body().data.request.body.contains(id)) {
@@ -168,9 +167,7 @@ public class E2ETest {
     return false;
   }
 
-  /**
-   * Skips tests if they were supposed to be ignored.
-   */
+  /** Skips tests if they were supposed to be ignored. */
   static class EndToEndTestsDisabledRule implements MethodRule {
 
     @Override

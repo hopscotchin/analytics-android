@@ -9,6 +9,5 @@ public interface RunscopeService {
   Call<MessagesResponse> messages(@Path("bucket") String bucket);
 
   @GET("buckets/{bucket}/messages/{message}")
-  Call<MessageResponse> message(@Path("bucket") String bucket,
-      @Path("message") String message);
+  Call<MessageResponse> message(@Path("bucket") String bucket, @Path("message") String message);
 }
